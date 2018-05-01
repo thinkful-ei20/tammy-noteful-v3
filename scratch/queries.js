@@ -1,3 +1,5 @@
+// import { ENOSTR } from 'constants';
+
 'use strict';
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
@@ -76,28 +78,49 @@ const {Note} = require('../models/note');
 //     console.error(err);
 //   });
 
+// mongoose.connect(MONGODB_URI)
+//   .then (()=>{
+//     const id = '5ae8c1735b995f21802dadee';
+//     const updateNote = {title: 'News on Dogs', content: 'This has nothing to do with cats'};
+//     const validateFields = ['title', 'content'];
+
+//     // validateFields.forEach(field => {
+//     //   if (!(field in updateNote.keys)) {
+//     //     const message = 'Please include a title and content';
+//     //     console.error(message);
+//     //   };
+
+//     return Note.findByIdAndUpdate(id, updateNote, {new: true, upsert: false})
+//       .then((note) => {
+//         console.log(note);
+//       })
+//       .catch(console.error);
+//   })
+
+//   .then(() => {
+//     return mongoose.disconnect()
+//       .then(() => {
+//         console.info('Disconnected');
+//       });
+//   })
+//   .catch(err => {
+//     console.error(`ERROR: ${err.message}`);
+//     console.error(err);
+//   });
+
 mongoose.connect(MONGODB_URI)
   .then (()=>{
     const id = '5ae8c1735b995f21802dadee';
-    const updateNote = {title: 'News on Dogs', content: 'This has nothing to do with cats'};
-    const validateFields = ['title', 'content'];
-
-    // validateFields.forEach(field => {
-    //   if (!(field in updateNote.keys)) {
-    //     const message = 'Please include a title and content';
-    //     console.error(message);
-    //   };
-
-    return Note.findByIdAndUpdate(id, updateNote, {new: true, upsert: false})
-      .then((note) => {
-        console.log(note);
-      })
-      .catch(console.error);
-  })
-
-  .then(() => {
-    return mongoose.disconnect()
+    return Note
+      .findByIdAndRemove(id)
       .then(() => {
+        console.log('Removed note', Note);
+      })
+      .catch(console.error('Soemthing went wrong'));
+  })
+  .then (()=> {
+    return mongoose.disconnect()
+      .then(()=>{
         console.info('Disconnected');
       });
   })
