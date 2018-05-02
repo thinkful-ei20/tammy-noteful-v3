@@ -46,22 +46,11 @@ router.get('/:id', (req, res, next) => {
   return Note
     .find({_id: id})
     .then(results => { 
-      res.json(results);
+      res.json(results[0]);
     })
     .catch(console.error);
 });
-// .then (() => {
-// return mongoose.disconnect()
-//   .then(()=> {
-//     console.log('Disconnected');
-//   });
-// })
-// .catch(err => {
-// console.error(`ERROR: ${err.message}`);
-// console.error(err);
-// });
 
-// });
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/', (req, res, next) => {
@@ -70,9 +59,9 @@ router.post('/', (req, res, next) => {
     {title,
       content})
     .then(note => {
-      res.json(note);
+      res.location(`${res.originalUrl}/${note.id}`).status(201).json(note);
     })
-    .catch(console.error);
+    .catch(console.log('something happened in post API'));
   
 
 });
