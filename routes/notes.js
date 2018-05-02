@@ -26,16 +26,7 @@ router.get('/', (req, res, next) => {
     })
     .catch(console.error);
 });
-// .then(() => {
-//   return mongoose.disconnect()
-//     .then(() => {
-//       console.info('Disconnected');
-//     });
-// })
-// .catch(err => {
-//   console.error(`ERROR: ${err.message}`);
-//   console.error(err);
-// });
+
   
 
 
@@ -43,10 +34,17 @@ router.get('/', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
   const id = req.params.id;
   
+  if (id.length !== 24) {
+    const err = new Error('Bad request');
+    err.status = 400;
+    return next(err);
+  }
+
+
   return Note
-    .find({_id: id})
+    .findById(id)
     .then(results => { 
-      res.json(results[0]);
+      res.json(results);
     })
     .catch(console.error);
 });

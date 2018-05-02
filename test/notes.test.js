@@ -85,7 +85,35 @@ describe('Notes API', function() {
     });
   });
 
-  
+  describe('GET /api/notes/:id', function () {
+    it ('should return all notes', function() {
+      let note;
+      return Note.findOne()
+        .then(result => {
+          note = result;
+
+          return chai.request(app)
+            .get(`/api/notes/${note.id}`);
+        })
+        .then((res) => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.keys('id','title','content', 'createdAt', 'updatedAt');
+
+          expect(res.body.id).to.equal(note.id);
+          expect(res.body.title).to.equal(note.title);
+          expect(res.body.content).to.equal(note.content);
+        });
+    });
+    it('should return status error 400', function() {
+      let id = 123435;
+      return chai.request(app)
+        .get(`/api/notes/${id}`)
+        .then((res) => {
+          expect(res).to.have.status(400);
+        });
+    });
+  });
 });
-
-
