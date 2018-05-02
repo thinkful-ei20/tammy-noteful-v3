@@ -53,6 +53,13 @@ router.get('/:id', (req, res, next) => {
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/', (req, res, next) => {
   const {title, content} = req.body;
+
+  if (!title){
+    const err = 'Please include a title';
+    err.status = 400;
+    console.error(err);
+  }
+
   Note.create(
     {title,
       content})
@@ -69,11 +76,6 @@ router.put('/:id', (req, res, next) => {
   const id = req.params.id;
   const {title, content} = req.body;
 
-  if (!title){
-    const err = 'Please include a title';
-    err.status = 400;
-    console.error(err);
-  }
 
   Note.findByIdAndUpdate(id, {title,content}, {new: true, upsert: false})
     .then((note) => {

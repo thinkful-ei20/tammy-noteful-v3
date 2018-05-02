@@ -116,4 +116,41 @@ describe('Notes API', function() {
         });
     });
   });
+
+  //API PUT
+  describe('PUT /api/notes/:id', function() {
+    it('should update and item and return it', function () {
+      let updateNote = {id: '000000000000000000000001', title: 'New Title', content: 'New Content'};
+      let res;
+      return chai.request(app)
+        .put(`/api/notes/${updateNote.id}`)
+        .send(updateNote)
+        .then(function(result) {
+          res = result;
+          expect(res).to.have.status(201);
+          expect(res).to.be.json;
+
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.keys('id','title','content', 'createdAt', 'updatedAt');
+
+          expect(res.body.id).to.equal(updateNote.id);
+          expect(res.body.title).to.equal(updateNote.title);
+          expect(res.body.content).to.equal(updateNote.content);
+
+          return Note.findByIdAndUpdate(res.body.id);
+        })
+        .then (dataBase => {
+          expect(res.body.title).to.equal(dataBase.title);
+          expect(res.body.content).to.equal(dataBase.content);
+        });
+    });
+    it('should return status error 400', function() {
+      let id = 123435;
+      return chai.request(app)
+        .get(`/api/notes/${id}`)
+        .then((res) => {
+          expect(res).to.have.status(400);
+        });
+    });
+  });
 });
