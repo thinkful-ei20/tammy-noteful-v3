@@ -153,4 +153,18 @@ describe('Notes API', function() {
         });
     });
   });
+  describe('DELETE /api/notes/:id', function() {
+    it('should delete a note and return 204 status', function () {
+      const id = '000000000000000000000001';
+      return chai.request(app)
+        .delete(`/api/notes/${id}`)
+        .then(res => {
+          expect(res).to.have.status(204);
+          return Note.findById(id);
+        })
+        .then((dataBase)=> {
+          expect(dataBase).not.to.exist;
+        });
+    });
+  });
 });

@@ -88,6 +88,13 @@ router.put('/:id', (req, res, next) => {
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/:id', (req, res, next) => {
   const id = req.params.id;
+
+  if (!id) {
+    const err = new Error('Bad request');
+    err.status = 400;
+    return next(err);
+  }
+
   Note .findByIdAndRemove(id)
     .then(() => {
       res.status(204).end();    
