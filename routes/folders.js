@@ -22,7 +22,26 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/:id', (req, res, next) => {
+  let id = req.params.id;
 
+
+
+  // if (id.length !== 24) {
+  //   const err = new Error('Not found');
+  //   err.status = 404;
+  //   return next(err);
+  // }
+
+  return Folder
+    .findById(id)
+    .then((result) => {
+      res.json(result).status(200);
+    })
+    .catch(err => {
+      err = new Error ('Not found');
+      err.status = 404;
+      return next(err);
+    });
 });
 
 module.exports = router;
