@@ -10,6 +10,7 @@ const {MONGODB_URI} = require('../config');
 const {Note} = require('../models/note');
 
 
+
 /* ========== GET/READ ALL ITEM ========== */
 router.get('/', (req, res, next) => {
   const searchTerm = req.query;
