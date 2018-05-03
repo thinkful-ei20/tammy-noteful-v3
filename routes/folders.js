@@ -22,18 +22,16 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/:id', (req, res, next) => {
-  let id = req.params.id;
+  let folderId = req.params.id;
 
-
-
-  // if (id.length !== 24) {
-  //   const err = new Error('Not found');
-  //   err.status = 404;
-  //   return next(err);
-  // }
-
+  if (!mongoose.Types.ObjectId.isValid(folderId)) {
+    const err = new Error('Bad request');
+    err.status = 400;
+    return next(err);
+  }
+  //^^need to find a way to loop through values of object Ids
   return Folder
-    .findById(id)
+    .findById(folderId)
     .then((result) => {
       res.json(result).status(200);
     })
@@ -41,6 +39,28 @@ router.get('/:id', (req, res, next) => {
       err = new Error ('Not found');
       err.status = 404;
       return next(err);
+    });
+});
+
+router.post('/', (req,res,next) => {
+  let name = req.body;
+
+  if (!name){
+    const err = new Error('Bad request');
+    err.status = 400;
+    return next (err);
+  }
+
+  Folder.create(name)
+    .then(folder => {
+      res.location(`${res.originalUrl}/${folder.id}`).status(201).json(folder);
+    })
+    .catch(err => {
+      if (err.code === 11000) {
+        err = new Error('The folder name already exists');
+        err.status = 400;
+      }
+      next(err);
     });
 });
 
