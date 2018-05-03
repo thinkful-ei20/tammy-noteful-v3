@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 
 const noteSchema = mongoose.Schema({
   title: {type: String, required: true},
-  content: {type: String, required: true},
-  folderID: {type: mongoose.Schema.Types.ObjectId, ref: 'Folder'},
+  content: {type: String},
+  folderId: {type: mongoose.Schema.Types.ObjectId, ref: 'Folder'},
 }, {timestamps: true});
 
 noteSchema.set('toObject',  {
