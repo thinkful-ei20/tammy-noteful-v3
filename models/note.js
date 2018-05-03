@@ -1,10 +1,12 @@
 'use strict';
 
 const mongoose = require('mongoose');
+//const {Folder} = require('./folder');
 
 const noteSchema = mongoose.Schema({
   title: {type: String, required: true},
   content: {type: String, required: true},
+  folderID: {type: mongoose.Schema.Types.ObjectId, ref: 'Folder'},
 }, {timestamps: true});
 
 noteSchema.set('toObject',  {
