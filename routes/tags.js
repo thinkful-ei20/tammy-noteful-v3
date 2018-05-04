@@ -38,4 +38,77 @@ router.get('/:id', (req, res, next) => {
     .catch(err => next (err));
 });
 
+router.post('/', (req, res, next) => {
+  const name = req.body.name;
+
+  if (!name) {
+    const err = new Error ('Please include a name');
+    err.status = 400;
+    return next(err);
+  }
+
+  return Tag
+    .create(name)
+    .then (tag => {
+      res.location(`${req.originalUrl}/${tag.id}`).status(201).json(tag);
+    })
+    .catch (err => {
+      if (err.code === 11000) {
+        err = new Error('The tag already exists');
+        err.status = 400;
+      }
+      next(err);
+    });
+});
+
+router.put('/:id', (req, res, next) => {
+  const tagId = req.params.id;
+  const name = req.body.name;
+
+  if (!mongoose.Types.ObjectId.isValid(tagId)) {
+    const err = new Error('Bad request');
+    err.status = 400;
+    return next(err);
+  }
+
+  if (!name) {
+    const err = new Error('Please include a name');
+    err.status = 400;
+    return next(err);
+  }
+
+  Tag.findByIdAndUpdate(tagId, name, {new: true})
+    .then(updatedTag => {
+      res.json(updatedTag);
+    })
+    .catch (err => {
+      if( err.code === 11000) {
+        err = new Error('The tag alreay exists');
+        err.status = 400;
+      }
+      next(err);
+    });
+
+});
+
+router.delete('/:id', (req, res, next)=> {
+  const tagId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(tagId)){
+    const err = new Error ('Tag does not exist');
+    err.status = 400;
+    return next(err);
+  }
+
+  Tag.findByIdAndRemove(tagId)
+    .then(() => {
+      return Note.updateMany({'tags': tagId}, {$pull:{'tags': tagId}});
+    })
+    .then(() => {
+      res.status(204).end();
+    });
+
+
+});
+
 module.exports = router;
