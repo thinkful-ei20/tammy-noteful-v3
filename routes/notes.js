@@ -112,7 +112,7 @@ router.post('/', (req, res, next) => {
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
 router.put('/:id', (req, res, next) => {
   const id = req.params.id;
-  const {title, content,folderId} = req.body;
+  const {title, content,folderId, tags =[]} = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     const err = new Error('Folder does not exist');
@@ -126,7 +126,15 @@ router.put('/:id', (req, res, next) => {
     return next(err);
   }
 
-  Note.findByIdAndUpdate(id, {title,content,folderId}, {new: true, upsert: false})
+  tags.forEach(tag => {
+    if(!mongoose.Types.ObjectId.isValid(tag)){
+      const err = new Error('Tag does not exist');
+      err.status = 400;
+      return next(err);
+    }
+  });
+
+  Note.findByIdAndUpdate(id, {title, content, folderId, tags}, {new: true, upsert: false})
     .then((note) => {
       res.location(`${req.originalUrl}/${note.id}`).status(201).json(note);
     })
