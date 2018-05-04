@@ -27,7 +27,7 @@ describe('Notes API', function() {
 
   afterEach(function () {
     return mongoose.connection.db.dropDatabase()
-      .then(() => console.log('dataabase dropped'));
+      .then(() => console.log('database dropped'));
   });
 
   after(function () {
@@ -39,7 +39,8 @@ describe('Notes API', function() {
     it('should create and return a new item when provided valid data', function () {
       const newItem = {
         'title': 'The best article about cats ever!',
-        'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...'
+        'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+        'folderId' : '111111111111111111111103',
       };
   
       let res;
@@ -53,7 +54,7 @@ describe('Notes API', function() {
           expect(res).to.have.header('location');
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
-          expect(res.body).to.have.keys('id', 'title', 'content', 'createdAt', 'updatedAt');
+          expect(res.body).to.have.keys('id', 'title', 'content', 'createdAt', 'updatedAt', 'folderId');
           // 2) then call the database
           return Note.findById(res.body.id);
         })
@@ -61,6 +62,7 @@ describe('Notes API', function() {
         .then(data => {
           expect(res.body.title).to.equal(data.title);
           expect(res.body.content).to.equal(data.content);
+          expect(res.body.folderId).to.equal(data.folderId.toString());
         });
     });
   });
@@ -100,7 +102,7 @@ describe('Notes API', function() {
           expect(res).to.be.json;
 
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id','title','content', 'createdAt', 'updatedAt');
+          expect(res.body).to.have.keys('id','title','content', 'createdAt', 'updatedAt', 'folderId');
 
           expect(res.body.id).to.equal(note.id);
           expect(res.body.title).to.equal(note.title);
@@ -131,7 +133,7 @@ describe('Notes API', function() {
           expect(res).to.be.json;
 
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id','title','content', 'createdAt', 'updatedAt');
+          expect(res.body).to.have.keys('id','title','content', 'createdAt', 'updatedAt', 'folderId');
 
           expect(res.body.id).to.equal(updateNote.id);
           expect(res.body.title).to.equal(updateNote.title);

@@ -8,6 +8,7 @@ mongoose.Promise = global.Promise;
 const {MONGODB_URI} = require('../config');
 
 const {Note} = require('../models/note');
+const {Folder} = require('../models/folder');
 
 
 
@@ -15,9 +16,14 @@ const {Note} = require('../models/note');
 router.get('/', (req, res, next) => {
   const searchTerm = req.query;
   const filter = {};
+
+  console.log(searchTerm);
+
   if (searchTerm) {
     const re = new RegExp(searchTerm, 'i');
+    console.log(re);
     filter.title = { $regex: re };
+    console.log({ $regex: re });
   }
 
   return Note.find(filter)
@@ -53,7 +59,7 @@ router.get('/:id', (req, res, next) => {
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/', (req, res, next) => {
-  const {title, content} = req.body;
+  const {title, content, folderId} = req.body;
 
   if (!title){
     const err = 'Please include a title';
@@ -61,9 +67,16 @@ router.post('/', (req, res, next) => {
     console.error(err);
   }
 
+  if (folderId && !mongoose.Types.ObjectId.isValid(folderId)) {
+    const err = new Error('Folder does not exist');
+    err.status = 400;
+    return next(err);
+  }
+
   Note.create(
     {title,
-      content})
+      content,
+      folderId})
     .then(note => {
       res.location(`${res.originalUrl}/${note.id}`).status(201).json(note);
     })
@@ -75,10 +88,21 @@ router.post('/', (req, res, next) => {
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
 router.put('/:id', (req, res, next) => {
   const id = req.params.id;
-  const {title, content} = req.body;
+  const {title, content,folderId} = req.body;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('Folder does not exist');
+    err.status = 400;
+    return next(err);
+  }
 
-  Note.findByIdAndUpdate(id, {title,content}, {new: true, upsert: false})
+  if (folderId && !mongoose.Types.ObjectId.isValid(folderId)) {
+    const err = new Error('Folder does not exist');
+    err.status = 400;
+    return next(err);
+  }
+
+  Note.findByIdAndUpdate(id, {title,content,folderId}, {new: true, upsert: false})
     .then((note) => {
       res.location(`${req.originalUrl}/${note.id}`).status(201).json(note);
     })

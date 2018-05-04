@@ -8,6 +8,7 @@ mongoose.Promise = global.Promise;
 
 // const {MONGODB_URI} = require('../config');
 const {Folder} = require('../models/folder');
+const {Note} = require('../models/note');
 
 //get all folders and search
 router.get('/', (req, res, next) => {
@@ -75,6 +76,7 @@ router.put('/:id', (req, res , next) => {
     return next(err);
   }
 
+
   //checks for name exisits
   if (!name) {
     const err = new Error('Missing name');
@@ -84,7 +86,13 @@ router.put('/:id', (req, res , next) => {
 
   Folder.findByIdAndUpdate(folderId, name, {new: true, upsert: false})
     .then(updatedFolder => {
-      res.json(updatedFolder);
+
+      if (updatedFolder === null) {
+        const err = new Error('Bad Request');
+        err.status = 400;
+        return next(err);
+      } else 
+        res.json(updatedFolder);
     })
     .catch(err => {
       if (err.code === 11000){
@@ -98,16 +106,25 @@ router.put('/:id', (req, res , next) => {
 
 
 router.delete('/:id', (req, res, next)=> {
-  let folderId = req.params.id;
+  let deleteId = req.params.id;
+  console.log(deleteId);
 
-  if (!mongoose.Types.ObjectId.isValid(folderId)) {
+  if (!mongoose.Types.ObjectId.isValid(deleteId)) {
     const err = new Error('Bad request');
     err.status = 400;
     return next(err);
   }
 
-  Folder.findByIdAndRemove(folderId)
+
+  return Folder.findByIdAndRemove({_id: deleteId})
     .then(() => {
+      console.log(deleteId);
+      console.log('then is going');
+      return Note.deleteMany({'folderId': deleteId});
+
+    })
+    .then(() => {
+      console.log('related notes deleted');
       res.status(204).end();
     })
     .catch (err => next(err));
