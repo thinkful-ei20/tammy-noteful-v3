@@ -59,6 +59,7 @@ router.get('/:id', (req, res, next) => {
 
   return Note
     .findById(id)
+    .populate('tags')
     .then(results => { 
       res.json(results);
     })
@@ -68,7 +69,7 @@ router.get('/:id', (req, res, next) => {
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/', (req, res, next) => {
-  const {title, content, folderId} = req.body;
+  const {title, content, folderId, tags =[]} = req.body;
 
   if (!title){
     const err = 'Please include a title';
@@ -82,10 +83,24 @@ router.post('/', (req, res, next) => {
     return next(err);
   }
 
+  //if (tags) {
+  tags.forEach(tag => {
+    if (!mongoose.Types.ObjectId.isValid(tag)) {
+      const err = new Error('Tag does not exist');
+      err.status = 400;
+      return next(err);
+    }  
+  });
+  // }
+
+  
+
   Note.create(
     {title,
       content,
-      folderId})
+      folderId,
+      tags}
+  )
     .then(note => {
       res.location(`${res.originalUrl}/${note.id}`).status(201).json(note);
     })
