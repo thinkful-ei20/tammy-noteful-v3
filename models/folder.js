@@ -16,4 +16,4 @@ folderSchema.set('toObject', {
   }
 });
 
-module.exports = {Folder};
+module.exports = {Folder, folderSchema};
