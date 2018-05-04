@@ -14,7 +14,7 @@ const {Folder} = require('../models/folder');
 
 /* ========== GET/READ ALL ITEM ========== */
 router.get('/', (req, res, next) => {
-  const searchTerm = req.query;
+  const {searchTerm, folderId, tagId} = req.query;
   const filter = {};
 
   console.log(searchTerm);
@@ -26,7 +26,16 @@ router.get('/', (req, res, next) => {
     console.log({ $regex: re });
   }
 
+  if (folderId) {
+    filter.folderId = folderId;
+  }
+
+  if (tagId) {
+    filter.tags = tagId;
+  }
+
   return Note.find(filter)
+    .populate('tags')
     .sort('created')
     .then(results => {
       res.json(results);
@@ -37,7 +46,7 @@ router.get('/', (req, res, next) => {
   
 
 
-/* ========== GET/READ A SINGLE ITEM ========== */
+//* ========== GET/READ A SINGLE ITEM ========== */
 router.get('/:id', (req, res, next) => {
   const id = req.params.id;
   
